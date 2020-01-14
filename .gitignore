@@ -1,0 +1,14 @@
+# Python
+*.py[oci]
+*.egg
+*.whl
+*.egg-info
+/dist
+/build
+.mypy_cache
+
+# IDEs & Text editors
+*.sw[op]
+.vscode
+.idea
+.DS_Store
