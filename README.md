@@ -129,8 +129,13 @@ config.set_config_file("config.json")
 You can tell Config-Man to read a specific config from arguments using:
 
 ```python
-config.set_arg("logging.log_level", "log_level")
+import argparse
+
+parser = argparse.ArgumentParser()
+config.set_arg("logging.log_level", "log_level", parser)
 ```
+
+Config-Man automatically adds needed argument to parser. If necessary, you can also define `action`, `help`, and `required`.
 
 #### Loading Configs
 
@@ -142,8 +147,8 @@ config.load()
 
 By default configs from file overrides config from env and config from args overrides everything else.
 
-If you like to do things in a different way, you can run `load_from_env`, `load_from_file` and `load_from_args`
-by yourself in any order you desire.
+If you like to do things in a different way, you can run `load_from_env`, `load_from_file` and `load_from_args` by
+yourself in any order to desire.
 
 ### Creating an empty config file
 
@@ -159,3 +164,34 @@ with open("config.json", "w") as f:
 ```
 
 This way config.json will contain an empty config ready for you to fill.
+
+### Full example
+
+```python
+import argparse
+
+from configman import ConfigMan
+
+
+class LoggingConfig(ConfigMan):
+    log_level: str = "error"
+
+
+class Config(ConfigMan):
+    port: int
+    logging: LoggingConfig
+
+
+config = Config()
+parser = argparse.ArgumentParser()
+
+config.port = 443
+config.set_auto_env("MY_PROGRAM")
+config.set_env("logging.log_level", "LOG_LEVEL")
+config.set_config_file("config.json")
+config.set_arg("logging.log_level", "--log_level", "-l", parser)
+
+args = parser.parse_args()
+
+config.load(args)
+```

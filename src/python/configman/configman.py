@@ -1,8 +1,8 @@
 import os
 import json
 
-from typing import Optional, Dict, Any, Callable, get_type_hints
-from argparse import Namespace
+from typing import Optional, Dict, Any, Callable, get_type_hints, Union, Type
+from argparse import Namespace, Action, ArgumentParser
 
 from glom import glom, assign
 
@@ -27,8 +27,27 @@ class ConfigMan(object):
 
         self._envs[env_name] = config_name
 
-    def set_arg(self, config_name: str, arg_name: str) -> None:
-        self._args[arg_name] = config_name
+    def set_arg(self, config_name: str, *arg_name_or_flags: str, parser: ArgumentParser,
+                action: Union[str, Type[Action]] = None,
+                required: bool = None,
+                help_str: str = None) -> None:
+        arg_dest = arg_name_or_flags[0]
+
+        if arg_dest.startswith("--"):
+            arg_dest = arg_dest[2:]
+
+        self._args[arg_dest] = config_name
+
+        kwargs = {
+            "dest": arg_dest,
+            "type": self._get_type(config_name)
+        }
+
+        for arg, key in ((action, "action"), (required, "required"), (help_str, "help")):
+            if arg is not None:
+                kwargs[key] = arg
+
+        parser.add_argument(*arg_name_or_flags, **kwargs)
 
     def set_auto_env(self, prefix: str = "") -> None:
         def func(attr_path: str, _: type) -> None:
@@ -85,6 +104,13 @@ class ConfigMan(object):
         return result
 
     def _get_value_in_correct_type(self, full_conf_name: str, value: Any) -> Any:
+        conf_type = self._get_type(full_conf_name)
+        try:
+            return conf_type(value)
+        except ValueError as e:
+            raise IncompatibleTypeError(f"can not cast types: {e}")
+
+    def _get_type(self, full_conf_name: str) -> type:
         conf_name_parts = full_conf_name.split(".")
         conf_parent = ".".join(conf_name_parts[:-1])
         conf_name = conf_name_parts[-1]
@@ -95,12 +121,10 @@ class ConfigMan(object):
 
         try:
             conf_type = type_hints[conf_name]
-            return conf_type(value)
-
         except KeyError as e:
             raise InvalidConfigNameError(f"bad config name: {e}")
-        except ValueError as e:
-            raise IncompatibleTypeError(f"can not cast types: {e}")
+
+        return conf_type
 
     def _get_env_name(self, path: str, prefix: str = None) -> str:
         path_parts = path.split(".")
