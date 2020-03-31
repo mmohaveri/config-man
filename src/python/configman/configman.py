@@ -32,9 +32,11 @@ class ConfigMan(object):
                 required: bool = None,
                 help_str: str = None) -> None:
         arg_dest = arg_name_or_flags[0]
+        uses_flag = False
 
         if arg_dest.startswith("--"):
             arg_dest = arg_dest[2:]
+            uses_flag = True
 
         self._args[arg_dest] = config_name
 
@@ -47,7 +49,10 @@ class ConfigMan(object):
             if arg is not None:
                 kwargs[key] = arg
 
-        parser.add_argument(*arg_name_or_flags, **kwargs)
+        if uses_flag:
+            parser.add_argument(*arg_name_or_flags, **kwargs)
+        else:
+            parser.add_argument(**kwargs)
 
     def set_auto_env(self, prefix: str = "") -> None:
         def func(attr_path: str, _: type) -> None:
