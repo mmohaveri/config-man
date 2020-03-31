@@ -49,6 +49,9 @@ class ConfigMan(object):
             if arg is not None:
                 kwargs[key] = arg
 
+        if kwargs.get("action", None) is not None:
+            del kwargs["type"]
+
         if uses_flag:
             parser.add_argument(*arg_name_or_flags, **kwargs)
         else:
