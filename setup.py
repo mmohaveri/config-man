@@ -24,11 +24,12 @@ def run_setup():
         author='Mahdi Mohaveri',
         author_email='mmohaveri@gmail.com',
 
-        package_dir={'': 'src/python'},
-        packages=find_packages('src/python'),
+        package_dir={'': 'src'},
+        packages=find_packages('src'),
         package_data={
             'configman': ['py.typed'],
         },
+        include_package_data=True,
 
         license='MIT License',
 
@@ -41,14 +42,17 @@ def run_setup():
         python_requires=python_requirement,
 
         zip_safe=True,
-        keywords='development configuration',
+        keywords=[
+            'development',
+            'configuration',
+        ],
         classifiers=[
             'Development Status :: 3 - Alpha',
             'Intended Audience :: Developers',
             'License :: OSI Approved :: MIT License',
             'Operating System :: OS Independent',
+            'Programming Language :: Python :: 3',
             'Programming Language :: Python :: 3 :: Only',
-            'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8',
