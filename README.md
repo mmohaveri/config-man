@@ -4,6 +4,10 @@ Config-Man is a configuration manager for python projects. It helps you handle y
 an easy and clean way. It also supports multiple config sources like **json file**, **environment variables**,
 **hard coded defaults**, etc.
 
+## ⚠️ Archived ⚠️
+
+⚠️ This repository has been archived. Please use [Pydantic](https://github.com/pydantic/pydantic) as a replacement.
+
 ## Installation
 
 Simply install using pip:
